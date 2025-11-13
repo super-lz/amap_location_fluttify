@@ -1,11 +1,12 @@
 group 'me.yohom.amap_location_fluttify'
 version '1.0-SNAPSHOT'
 
+// 用主工程的 AGP/Gradle 配置，这里这坨不用了
+/*
 buildscript {
     repositories {
         google()
         mavenCentral()
-        
     }
 
     dependencies {
@@ -17,30 +18,41 @@ rootProject.allprojects {
     repositories {
         google()
         mavenCentral()
-        
     }
 }
+*/
 
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 31
+    // 1. 必须：AGP 8 要 namespace
+    namespace "me.yohom.amap_location_fluttify"
+
+    // 2. 跟主工程同步
+    compileSdkVersion 34
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
         main.jniLibs.srcDir 'libs'
     }
+
     defaultConfig {
-        minSdkVersion 16
+        // 跟 app 一样，不要再用 16
+        minSdkVersion 24
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+
     lintOptions {
         disable 'InvalidPackage'
     }
+
+    // 3. Java 11，和你 app/build.gradle 对齐
     compileOptions {
-        targetCompatibility JavaVersion.VERSION_1_8
-        sourceCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
+
+    // 4. 这段如果后面在 AGP 8 报 packaging 冲突，可以再考虑注释掉
     packagingOptions {
         merge 'res/values/values.xml'
         merge 'AndroidManifest.xml'
@@ -48,6 +60,7 @@ android {
         merge 'classes.jar'
         merge 'proguard.txt'
     }
+
     buildTypes {
         release {
             consumerProguardFiles "proguard-rules.pro"
@@ -59,9 +72,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
+
     compileOnly rootProject.findProject(":foundation_fluttify")
-    // flutter plugin dependency
-    
     // sdk dependency
     api 'com.amap.api:location:6.1.0'
 }
